@@ -1,0 +1,22 @@
+{
+  "name": "skunkjs",
+  "version": "0.0.24-local.15",
+  "description": "",
+  "main": "dist/skunk.js",
+  "typings": "dist/skunk.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepack": "cp ./src/skunk.d.ts ./dist/skunk.d.ts",
+    "build": "parcel build src/skunk.ts"
+  },
+  "keywords": [],
+  "author": "DKFN",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.14.126",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
+}
