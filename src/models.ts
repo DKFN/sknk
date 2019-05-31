@@ -7,6 +7,14 @@ export interface SkunkApplication {
     render: (domId: string, baseProps?: any) => void;
 }
 
+export enum SKUNK_LOG_LEVEL {
+    DEBUG = 0,
+    INFO = 1,
+    WARNING = 2,
+    ERROR = 3,
+    NONE = 4
+}
+
 // Object fired by the server when receives a run order
 export interface SkunkApplicationInstance extends SkunkAppDefinition {
     hash: string;
@@ -24,6 +32,7 @@ export interface SkunkAppDefinition {
 }
 
 export interface SkunkOptions {
+    logLevel: SKUNK_LOG_LEVEL;
     pedingAppsWaiterAutoStart: boolean;
     layoutsWaiterAutoStart: boolean;
     refreshCoef: (previous: number) => number;

@@ -1,5 +1,5 @@
 import {SkunkServer} from "./server/skunkServer";
 
-declare module 'skunkjs' {
+declare module 'sknk' {
     export const server: SkunkServer;
 }
