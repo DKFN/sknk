@@ -2,9 +2,7 @@
  * This file dos not contains anything very intersting
  */
 
-import server from "./server/skunkServer";
+import _server from "./server/skunkServer";
 import "./layout";
 
-export default {
-    server: server
-};
+export const server = _server;
