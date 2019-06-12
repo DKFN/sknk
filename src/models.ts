@@ -4,7 +4,7 @@ export interface SkunkApplication {
     layoutOptions: {
         id: string
     };
-    render: (domId: string, baseProps?: any) => void;
+    render: (domId: string, baseProps?: any, accessToken?: string) => void;
 }
 
 export enum SKUNK_LOG_LEVEL {
@@ -33,10 +33,10 @@ export interface SkunkAppDefinition {
 
 export interface SkunkOptions {
     logLevel: SKUNK_LOG_LEVEL;
-    pedingAppsWaiterAutoStart: boolean;
-    layoutsWaiterAutoStart: boolean;
-    refreshCoef: (previous: number) => number;
-    maxRefreshDelay: number;
+    pedingAppsWaiterAutoStart?: boolean;
+    layoutsWaiterAutoStart?: boolean;
+    refreshCoef?: (previous: number) => number;
+    maxRefreshDelay?: number;
 }
 
 // TODO : Extend maximum contained apps, names of allowed apps

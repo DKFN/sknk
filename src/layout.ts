@@ -1,4 +1,4 @@
-import server from "./server/skunkServer";
+import server from "./server/sknkServer";
 
 // TODO : Complete
 /*

@@ -1,5 +1,5 @@
-import {SkunkServer} from "./server/skunkServer";
+import {SknkServer} from "./server/sknkServer";
 
 declare module 'sknk' {
-    export const server: SkunkServer;
+    export const server: SknkServer;
 }
