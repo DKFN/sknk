@@ -3,7 +3,8 @@
  */
 import {SknkServer} from "./server/sknkServer";
 
-export const assign = (source: any, ...targets: any[]) => Object.assign({}, source, ...targets);
+export const assign = (source: any, ...targets: any[]) =>
+    Object.assign({}, source, ...targets);
 
 export const clone = (e: any) => Object.assign({}, e);
 
@@ -11,9 +12,15 @@ const handler = (query) => (e) => !!Object.keys(query).find(
     (k) => e[k] && e[k] === query[k]
 );
 
-export const find = (col: object[], query: object) => col.find(handler(query));
-export const findByIndex = (col: object[], query: object) => col.findIndex(query);
-export const remove = (col: object[], query: object) => col.splice(findByIndex(col, query), 1);
+export function find<T>(col: T[], query: object): T | undefined {
+    return col.find(handler(query));
+}
+export const findIndex = (col: object[], query: object): number => col.findIndex(handler(query));
+export const remove = (col: object[], query: object) => {
+    const idx = findIndex(col, query);
+    if (idx === -1) return;
+    col.splice(idx, 1)
+};
 
 
 const GOE_ERROR_MESSAGE = "getOrElse: Lifted (None) option.";
