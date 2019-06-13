@@ -1,1 +1,1 @@
-export const SKNK_VERSION = "0.0.24-local.82";
+export const SKNK_VERSION = "0.0.24-local.90";
