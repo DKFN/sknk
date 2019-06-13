@@ -40,27 +40,19 @@ export class SknkServer {
     private static userLayouts: SkunkUserLayout[] = []; // Todo: Store an intermediate object containing user conf and dom access to wrapper space
     private static __conf: SkunkOptions = {
         logLevel: SKUNK_LOG_LEVEL.ERROR,
-        pedingAppsWaiterAutoStart: true,
-        layoutsWaiterAutoStart: true,
     };
 
     private readonly log: Minilog;
     public static slog: Minilog;
 
-    private iteration: number = 0;
-
     public constructor() {
-        // this.runPendingApps();
-        // this.findALlUserSpaces();
         // TODO : Make a function to be able to change log level at runtime
-        this.log = Minilog(`[SKNK-SV] (v${SKNK_BUILD} )`);
+        this.log = Minilog(`[SKNK-SV] (v${SKNK_BUILD})`);
         SknkServer.slog = this.log;
         this.renderLoop();
     }
 
     // Public interface of the API (outside of main app accessible functions)
-    // TODO : Register should not load and display the app, add a makeVisible that will be both acessible by the
-    // TODO : Parent and child app so that the child can register once and parent spawn many
     public publicInterface = {
         registerApp: SknkServer.registerApp,
         getBaseProps: this.getBaseProps
@@ -116,7 +108,6 @@ export class SknkServer {
 
     private idleOpsWatcherId;
 
-    // TODO : Is planned to be the one and only interval of the whole server for all tasks
     private renderLoop() {
         this.idleOpsWatcherId = setInterval(() => {
             const maybeSpaces = [].slice.call(document.getElementsByClassName("skunk-space"));
@@ -128,64 +119,56 @@ export class SknkServer {
         }, 10);
     }
 
-    private static pendingAppsWatcherId = 0;
-
-    // aka "render" loop
     private runPendingApps() {
-        // SknkServer.pendingAppsWatcherId = setInterval(() => {
-            this.iteration = this.iteration + 1;
-            // console.log(this);
-            // if (SknkServer.pendingApps.length === 0 || SknkServer.skunkApps.length === 0)
-            //    DISABLE_RECCURING_LOGS && SknkServer.slog.debug("[SKUNSV] Empty ramp", {pa: SknkServer.pendingApps, sa: SknkServer.skunkApps});
+        SknkServer.pendingApps = SknkServer.pendingApps
+            .map(
+            (x) => {
+                const app = _sfu.find(SknkServer.skunkApps, {name: x.name});
 
-            SknkServer.pendingApps = SknkServer.pendingApps
-                .map(
-                (x) => {
-                    const app = _sfu.find(SknkServer.skunkApps, {name: x.name});
-
-                    if (!app) {
-                        SknkServer.slog.warn("App have not registred itself");
-                        return x;
-                    }
-
-                    if (!app.render || typeof app.render !== "function") {
-                        SknkServer.slog.error("App does not give render function", app);
-                        return x;
-                    }
-
-                    const randomDomId = this.randId("skunk-");
-                    const maybeScript = _sfu.find(SknkServer.allowedScripts, {name: x.name});
-                    SknkServer.slog.debug("Application requests space with id: " + app.layoutOptions.id);
-                    const targetSpace = _sfu.find(SknkServer.userLayouts, {id: app.layoutOptions.id});
-
-                    if (!maybeScript || !targetSpace) {
-                        SknkServer.slog.warn(
-                            "Unable to meet library criteras",
-                            {lib: app, allowScriptIfAny: maybeScript, targetSpaceIfAny: targetSpace}
-                        );
-                        return x;
-                    }
-
-                    const runningApp = _sfu.assign(maybeScript, x, {
-                            domId: randomDomId,
-                            baseApp: app
-                    });
-
-                    this.log.info("Running ...", runningApp);
-
-                    // TODO : Small refactor
-                    if (targetSpace) {
-                        this.createInstanceNode(randomDomId, targetSpace && targetSpace.containerNode);
-                        app.render(randomDomId, x.baseProps, x.hash);
-                        SknkServer.runningApps.push(runningApp);
-                        this.log.info("App is now running !", runningApp);
-                        return null;
-                    } else
-                        this.log.warn("Unable to find render space, retrying ...", x);
+                if (!app) {
+                    SknkServer.slog.warn("App have not registred itself");
                     return x;
                 }
-            ).filter(x => !!x);
-        // }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
+
+                if (!app.render || typeof app.render !== "function") {
+                    SknkServer.slog.error("App does not give render function", app);
+                    return x;
+                }
+
+                const randomDomId = this.randId("skunk-");
+                const maybeScript = _sfu.find(SknkServer.allowedScripts, {name: x.name});
+                SknkServer.slog.debug("Application requests space with id: " + app.layoutOptions.id);
+                const targetSpace = _sfu.find(SknkServer.userLayouts, {id: app.layoutOptions.id});
+
+                if (!maybeScript || !targetSpace) {
+                    SknkServer.slog.warn(
+                        "Unable to meet library criteras",
+                        {lib: app, allowScriptIfAny: maybeScript, targetSpaceIfAny: targetSpace}
+                    );
+                    return x;
+                }
+
+                const runningApp = _sfu.assign(maybeScript, x, {
+                        domId: randomDomId,
+                        baseApp: app
+                });
+
+                this.log.info("Running ...", runningApp);
+
+                this.createInstanceNode(randomDomId, targetSpace && targetSpace.containerNode);
+                app.render(randomDomId, x.baseProps, x.hash);
+                SknkServer.runningApps.push(runningApp);
+                this.log.info("App is now running !", runningApp);
+                return null;
+            }).filter(x => !!x);
+    }
+
+    public lockRender() {
+        clearInterval(this.idleOpsWatcherId);
+    }
+
+    public unlockRender() {
+        this.renderLoop();
     }
 
     // TODO : Refactor
@@ -200,7 +183,7 @@ export class SknkServer {
         // this.runPendingApps();
     }
 
-    public hotLoad(options) {
+    private hotLoad(options) {
         hotloadScript(options);
         this.log.info("Hotload successfull : There is a new script, ", options);
         return options;
@@ -232,7 +215,6 @@ export class SknkServer {
         const finalApp = _sfu.assign(maybeApp, {
             baseApp: undefined,
             hash: this.randId(),
-            domId: "testDomId", // FIXME : Usefull ? I dont think so :)
             baseProps: finalProps,
             instance: maybeApp.instances + 1
         });
@@ -261,7 +243,7 @@ export class SknkServer {
         if (!appContainer) return ;
 
         appContainer.parentNode.removeChild(appContainer);
-        _.remove(SknkServer.runningApps, {name: name});
+        _sfu.remove(SknkServer.runningApps, {name: name});
     }
 
     public registerSpace(options) {
@@ -273,37 +255,29 @@ export class SknkServer {
 
     // Tries to find all the spaces of the user
     private findALlUserSpaces(maybeSpaces: HTMLElement[]) {
-        // const interval = setInterval(() => {
-            // TODO : Of course check emptyness to trigger interval or not in supervising interval :D
-            // const maybeSpaces = [].slice.call(document.getElementsByClassName("skunk-space"));
-            // if (maybeSpaces.length === SknkServer.userLayouts.length)
-            //    return DISABLE_RECCURING_LOGS || this.log.debug("Empty layout check");
-
-            maybeSpaces
-                .filter((space) => {
-                    const maybeId = space.getAttribute("skunk-id");
-                    return !_sfu.find(SknkServer.userLayouts, {id: maybeId});
-                })
-                .map((space) => {
-                    this.log.debug(space);
-                    const maybeId = space.getAttribute("skunk-id");
-                    const maybeParams = space.getAttribute("skunk-params");
-                    const params = _sfu.assign(
-                        JSON.parse(maybeParams || "{}"),
-                        _sfu.clone(DEFAULT_USERLAYOUT_PARAMS)
-                    );
-                    const hash = this.randId();
-                    space.setAttribute("skunk-shash", hash);
-                    SknkServer.userLayouts.push({
-                        id: maybeId,
-                        containerNode: space,
-                        hash: hash,
-                        params: params
-                    });
-            });
-            this.log.info("Scanned spaces : ", SknkServer.userLayouts);
-        // }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
-
+        maybeSpaces
+            .filter((space) => {
+                const maybeId = space.getAttribute("skunk-id");
+                return !_sfu.find(SknkServer.userLayouts, {id: maybeId});
+            })
+            .forEach((space) => {
+                this.log.debug(space);
+                const maybeId = space.getAttribute("skunk-id");
+                const maybeParams = space.getAttribute("skunk-params");
+                const params = _sfu.assign(
+                    JSON.parse(maybeParams || "{}"),
+                    _sfu.clone(DEFAULT_USERLAYOUT_PARAMS)
+                );
+                const hash = this.randId();
+                space.setAttribute("skunk-shash", hash);
+                SknkServer.userLayouts.push({
+                    id: maybeId,
+                    containerNode: space,
+                    hash: hash,
+                    params: params
+                });
+        });
+        this.log.info("Scanned spaces : ", SknkServer.userLayouts);
     }
 
 
