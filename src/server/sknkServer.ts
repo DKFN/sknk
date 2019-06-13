@@ -1,13 +1,7 @@
-/*
-* FIXME : This issue should make the bundle size lighter but is throwing errors client side
-import assign from "lodash/assign";
-import find from "lodash/find";
-import clone from "lodash/clone";
-*/
-
-// TODO : Drop lodash as it counts for 100kb of deps
-import * as _ from "lodash";
 import {SKNK_VERSION} from "../version";
+import {hotloadScript} from "./serverUtils";
+import * as _sfu from '../sfu';
+import Minilog = require("minilog");
 import {
     DEFAULT_USERLAYOUT_PARAMS,
     SKUNK_LOG_LEVEL,
@@ -17,21 +11,13 @@ import {
     SkunkOptions,
     SkunkUserLayout
 } from "../models";
-import {getOrElse, hotloadScript} from "./serverUtils";
-
 const SKNK_BUILD = SKNK_VERSION;
-
-import Minilog = require("minilog");
 
 /**
  * Skunk Server v0.1
  *
  * Author: DKFN
  */
-
-const DISABLE_RECCURING_LOGS = true;
-
-
 // TODO : Add a refresher waiter that will call functions depending on queues emptyness according to related handler functions
 // TODO : Instead
 // TODO : For this use promisifyInterval to try until first priority queue (space) is empty
@@ -56,8 +42,6 @@ export class SknkServer {
         logLevel: SKUNK_LOG_LEVEL.ERROR,
         pedingAppsWaiterAutoStart: true,
         layoutsWaiterAutoStart: true,
-        maxRefreshDelay: 100,
-        refreshCoef: (act: number) => 100,
     };
 
     private readonly log: Minilog;
@@ -98,14 +82,14 @@ export class SknkServer {
         if (!options.src || !options.name)
             return this.log.error("Can't allow without src and name", options);
         options.instances = 0;
-        const maybeScript = _.find(SknkServer.allowedScripts, {name: options.name});
+        const maybeScript = _sfu.find(SknkServer.allowedScripts, {name: options.name});
         if (maybeScript)
             return this.log.warn("Already allowed script");
         SknkServer.allowedScripts.push(options);
     }
 
     public static registerApp(options: SkunkApplication) {
-        if (!_.find(SknkServer.allowedScripts, {name: options.name})) {
+        if (!_sfu.find(SknkServer.allowedScripts, {name: options.name})) {
             SknkServer.slog.warn("Attempted registration of non allowed script from an application",
                 {
                     opts: options,
@@ -121,7 +105,7 @@ export class SknkServer {
     }
 
     public getBaseProps(accessToken: string) {
-        const maybeInstance: SkunkApplicationInstance = _.find(SknkServer.runningApps, {hash: accessToken});
+        const maybeInstance: SkunkApplicationInstance = _sfu.find(SknkServer.runningApps, {hash: accessToken});
         if (!maybeInstance) {
             SknkServer.slog.error("Unable to find accessToken: " + accessToken, SknkServer.runningApps);
             return;
@@ -157,7 +141,7 @@ export class SknkServer {
             SknkServer.pendingApps = SknkServer.pendingApps
                 .map(
                 (x) => {
-                    const app = _.find(SknkServer.skunkApps, {name: x.name});
+                    const app = _sfu.find(SknkServer.skunkApps, {name: x.name});
 
                     if (!app) {
                         SknkServer.slog.warn("App have not registred itself");
@@ -170,9 +154,9 @@ export class SknkServer {
                     }
 
                     const randomDomId = this.randId("skunk-");
-                    const maybeScript = _.find(SknkServer.allowedScripts, {name: x.name});
+                    const maybeScript = _sfu.find(SknkServer.allowedScripts, {name: x.name});
                     SknkServer.slog.debug("Application requests space with id: " + app.layoutOptions.id);
-                    const targetSpace = _.find(SknkServer.userLayouts, {id: app.layoutOptions.id});
+                    const targetSpace = _sfu.find(SknkServer.userLayouts, {id: app.layoutOptions.id});
 
                     if (!maybeScript || !targetSpace) {
                         SknkServer.slog.warn(
@@ -182,11 +166,10 @@ export class SknkServer {
                         return x;
                     }
 
-                    const runningApp = _.assign(maybeScript,
-                        _.assign(x, {
+                    const runningApp = _sfu.assign(maybeScript, x, {
                             domId: randomDomId,
                             baseApp: app
-                    }));
+                    });
 
                     this.log.info("Running ...", runningApp);
 
@@ -232,8 +215,8 @@ export class SknkServer {
     // App will be runned as soon as it is available
     public runApp(name: string, additionalProps?: any, runName: string = name) {
         // Fetch app definition from registered apps
-        const maybeApp: SkunkAppDefinition = getOrElse(
-            _.clone(_.find(SknkServer.allowedScripts, {name: name})),
+        const maybeApp: SkunkAppDefinition = _sfu.getOrElse(
+            _sfu.clone(_sfu.find(SknkServer.allowedScripts, {name: name})),
             () => {
             throw new Error("Application is not an allowed script : " + name)
         });
@@ -242,9 +225,11 @@ export class SknkServer {
         if (maybeApp.instances === 0)
             this.hotLoad(maybeApp);
 
-        const finalProps = _.assign(_.cloneDeep(maybeApp.baseProps), additionalProps);
+        // const finalProps = _sfu.assign(_.cloneDeep(maybeApp.baseProps), additionalProps);
+        // TODO : User now required to clone if desired ?
+        const finalProps = _sfu.assign(maybeApp.baseProps, additionalProps);
         this.log.debug("Pending app final props : ", finalProps);
-        const finalApp = _.assign(maybeApp, {
+        const finalApp = _sfu.assign(maybeApp, {
             baseApp: undefined,
             hash: this.randId(),
             domId: "testDomId", // FIXME : Usefull ? I dont think so :)
@@ -260,7 +245,7 @@ export class SknkServer {
     }
 
     public stopApp(name: string, runName: string = name) {
-        const maybeApp = getOrElse(_.find(SknkServer.runningApps, {name: name}),
+        const maybeApp = _sfu.getOrElse(_sfu.find(SknkServer.runningApps, {name: name}),
             () => { throw new Error("There is no running app with name" + name)}
             );
         if (!maybeApp) return ;
@@ -269,7 +254,7 @@ export class SknkServer {
 
         // TODO : Provide a way for the app to register a function to clean all intervals etc ...
         // TODO : Necessary for a hot swap heavy application
-        const appContainer = getOrElse(document.getElementById(maybeApp.domId),
+        const appContainer = _sfu.getOrElse(document.getElementById(maybeApp.domId),
             () => { throw new Error(
                 "Attempted removal of app but DOM container cannot be found: " + maybeApp.domId)
         });
@@ -297,15 +282,15 @@ export class SknkServer {
             maybeSpaces
                 .filter((space) => {
                     const maybeId = space.getAttribute("skunk-id");
-                    return !_.find(SknkServer.userLayouts, {id: maybeId});
+                    return !_sfu.find(SknkServer.userLayouts, {id: maybeId});
                 })
                 .map((space) => {
                     this.log.debug(space);
                     const maybeId = space.getAttribute("skunk-id");
                     const maybeParams = space.getAttribute("skunk-params");
-                    const params = _.assign(
+                    const params = _sfu.assign(
                         JSON.parse(maybeParams || "{}"),
-                        _.clone(DEFAULT_USERLAYOUT_PARAMS)
+                        _sfu.clone(DEFAULT_USERLAYOUT_PARAMS)
                     );
                     const hash = this.randId();
                     space.setAttribute("skunk-shash", hash);
