@@ -43,15 +43,13 @@ const DISABLE_RECCURING_LOGS = true;
 export class SknkServer {
 
     //  Scripts that are currently running and managed by SknkServer
-    private runningApps: SkunkApplicationInstance[] = [];
+    private static runningApps: SkunkApplicationInstance[] = [];
     // Scripts that received a run order but that the server has yet to render
     private static pendingApps: SkunkApplicationInstance[] = [];
     // Scripts that have registred themselves to the server
     private static skunkApps: SkunkApplication[] = [];
     // Scripts allowed by parent application
     private static allowedScripts: SkunkAppDefinition[] = [];
-
-
 
     private static userLayouts: SkunkUserLayout[] = []; // Todo: Store an intermediate object containing user conf and dom access to wrapper space
     private static __conf: SkunkOptions = {
@@ -68,11 +66,12 @@ export class SknkServer {
     private iteration: number = 0;
 
     public constructor() {
-        this.firePendingApps();
-        this.findALlUserSpaces();
+        // this.runPendingApps();
+        // this.findALlUserSpaces();
         // TODO : Make a function to be able to change log level at runtime
         this.log = Minilog(`[SKNK-SV] (v${SKNK_BUILD} )`);
         SknkServer.slog = this.log;
+        this.renderLoop();
     }
 
     // Public interface of the API (outside of main app accessible functions)
@@ -122,20 +121,38 @@ export class SknkServer {
     }
 
     public getBaseProps(accessToken: string) {
-        const maybeInstance: SkunkApplicationInstance = _.find(this.runningApps, {hash: accessToken});
-        if (!maybeInstance) return;
+        const maybeInstance: SkunkApplicationInstance = _.find(SknkServer.runningApps, {hash: accessToken});
+        if (!maybeInstance) {
+            SknkServer.slog.error("Unable to find accessToken: " + accessToken, SknkServer.runningApps);
+            return;
+        }
         SknkServer.slog.info("Getting props for", maybeInstance);
         return maybeInstance.baseProps;
+    }
+
+    private idleOpsWatcherId;
+
+    // TODO : Is planned to be the one and only interval of the whole server for all tasks
+    private renderLoop() {
+        this.idleOpsWatcherId = setInterval(() => {
+            const maybeSpaces = [].slice.call(document.getElementsByClassName("skunk-space"));
+            if (maybeSpaces.length !== SknkServer.userLayouts.length)
+                this.findALlUserSpaces(maybeSpaces);
+
+            if (SknkServer.pendingApps.length > 0)
+                this.runPendingApps();
+        }, 10);
     }
 
     private static pendingAppsWatcherId = 0;
 
     // aka "render" loop
-    private firePendingApps() {
-        SknkServer.pendingAppsWatcherId = setInterval(() => {
+    private runPendingApps() {
+        // SknkServer.pendingAppsWatcherId = setInterval(() => {
             this.iteration = this.iteration + 1;
-            if (SknkServer.pendingApps.length === 0 || SknkServer.skunkApps.length === 0)
-                DISABLE_RECCURING_LOGS && SknkServer.slog.debug("[SKUNSV] Empty ramp", {pa: SknkServer.pendingApps, sa: SknkServer.skunkApps});
+            // console.log(this);
+            // if (SknkServer.pendingApps.length === 0 || SknkServer.skunkApps.length === 0)
+            //    DISABLE_RECCURING_LOGS && SknkServer.slog.debug("[SKUNSV] Empty ramp", {pa: SknkServer.pendingApps, sa: SknkServer.skunkApps});
 
             SknkServer.pendingApps = SknkServer.pendingApps
                 .map(
@@ -177,7 +194,7 @@ export class SknkServer {
                     if (targetSpace) {
                         this.createInstanceNode(randomDomId, targetSpace && targetSpace.containerNode);
                         app.render(randomDomId, x.baseProps, x.hash);
-                        this.runningApps.push(runningApp);
+                        SknkServer.runningApps.push(runningApp);
                         this.log.info("App is now running !", runningApp);
                         return null;
                     } else
@@ -185,17 +202,19 @@ export class SknkServer {
                     return x;
                 }
             ).filter(x => !!x);
-        }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
+        // }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
     }
 
+    // TODO : Refactor
     public disablePendingAppsWaiter() {
-        this.log.info("Pending apps watcher is stopped. /!\\ New apps will stay pending and will not render /!\\");
-        clearInterval(SknkServer.pendingAppsWatcherId);
+       //  this.log.info("Pending apps watcher is stopped. /!\\ New apps will stay pending and will not render /!\\");
+        // clearInterval(SknkServer.pendingAppsWatcherId);
     }
 
+    // TODO : Refactor
     public enablePendingAppsWaiter() {
-        this.log.info("Pending apps watcher started.");
-        this.firePendingApps();
+        // this.log.info("Pending apps watcher started.");
+        // this.runPendingApps();
     }
 
     public hotLoad(options) {
@@ -241,7 +260,7 @@ export class SknkServer {
     }
 
     public stopApp(name: string, runName: string = name) {
-        const maybeApp = getOrElse(_.find(this.runningApps, {name: name}),
+        const maybeApp = getOrElse(_.find(SknkServer.runningApps, {name: name}),
             () => { throw new Error("There is no running app with name" + name)}
             );
         if (!maybeApp) return ;
@@ -257,7 +276,7 @@ export class SknkServer {
         if (!appContainer) return ;
 
         appContainer.parentNode.removeChild(appContainer);
-        _.remove(this.runningApps, {name: name});
+        _.remove(SknkServer.runningApps, {name: name});
     }
 
     public registerSpace(options) {
@@ -266,13 +285,14 @@ export class SknkServer {
         return this.randId("space-");
     }
 
+
     // Tries to find all the spaces of the user
-    private findALlUserSpaces() {
-        const interval = setInterval(() => {
+    private findALlUserSpaces(maybeSpaces: HTMLElement[]) {
+        // const interval = setInterval(() => {
             // TODO : Of course check emptyness to trigger interval or not in supervising interval :D
-            const maybeSpaces = [].slice.call(document.getElementsByClassName("skunk-space"));
-            if (maybeSpaces.length === SknkServer.userLayouts.length)
-                return DISABLE_RECCURING_LOGS || this.log.debug("Empty layout check");
+            // const maybeSpaces = [].slice.call(document.getElementsByClassName("skunk-space"));
+            // if (maybeSpaces.length === SknkServer.userLayouts.length)
+            //    return DISABLE_RECCURING_LOGS || this.log.debug("Empty layout check");
 
             maybeSpaces
                 .filter((space) => {
@@ -297,7 +317,7 @@ export class SknkServer {
                     });
             });
             this.log.info("Scanned spaces : ", SknkServer.userLayouts);
-        }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
+        // }, this.iteration > 1000 ? 2 * this.iteration : 170); // FIXME: Strategy
 
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "sknk",
-  "version": "0.0.24-local.56",
+  "version": "0.0.24-local.67",
   "description": "",
   "main": "dist/skunk.js",
   "typings": "dist/skunk.d.ts",
