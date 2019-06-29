@@ -18,14 +18,7 @@ const SKNK_BUILD = SKNK_VERSION;
  *
  * Author: DKFN
  */
-// TODO : Add a refresher waiter that will call functions depending on queues emptyness according to related handler functions
-// TODO : Instead
-// TODO : For this use promisifyInterval to try until first priority queue (space) is empty
-// TODO : Before moving to the orther
-
-// TODO : Add instance hash of div id somewhere
-// TODO : Add a sknktoken for each instance that will be passed and given only to them
-// TODO : ( To be better than a simple hashing )
+// TODO : Provide a way to give multiple srcs for apps that may need multiple files
 export class SknkServer {
 
     //  Scripts that are currently running and managed by SknkServer
@@ -283,8 +276,7 @@ export class SknkServer {
 
     /* Boring internals */
     private randId = (placeholder?: string, iter: number = 4) =>
-        (placeholder || "") + Math.random().toString(36).substring(7)
-        + (iter === 0 ? "" : this.randId("", iter - 1));
+        (placeholder || "") + (Math.random() * iter).toString(36).substring(2)
 }
 
 const serverInstance = new SknkServer();
