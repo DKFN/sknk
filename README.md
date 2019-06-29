@@ -1,17 +1,17 @@
-# ![](http://cdn.infra.tetel.in/sknk/sknk.png)
-Sknk is a library that aims to ease the adoption of the Micro Frontend pattern in new and exiting Browser applications
+# ![](http://cdn.infra.tetel.in/sknk/sknk.png) ([Demo](https://sknk-demo-uld3cp3nxa-uc.a.run.app/))
+Sknk is a library that aims to ease the adoption of the Micro Frontend pattern in new and existing Browser applications
 
 Sknk is far from stable as of now and if you search a prod ready alternative you should look at Taylor
 
 
-# What is the typical strcture of an SKNK app
+# What is the typical structure of an SKNK app
 An SKNK app is composed of 1 mother application and N child applications.
 All child applications can receive properties from the mother application.
 There can be many instances of a child application.
  
 Here is how it looks in general:
 ![](http://cdn.infra.tetel.in/sknk/sknk-diagramgeneral.png)
-If we look at our example, 
+If we look at our [example](https://sknk-demo-uld3cp3nxa-uc.a.run.app), 
  
 ![](http://cdn.infra.tetel.in/sknk/skunkjschunks.png)
 
