@@ -11,6 +11,7 @@ There can be many instances of a child application.
  
 Here is how it looks in general:
 ![](http://cdn.infra.tetel.in/sknk/sknk-diagramgeneral.png)
+
 If we look at our [example](https://sknk-demo-uld3cp3nxa-uc.a.run.app), 
  
 ![](http://cdn.infra.tetel.in/sknk/skunkjschunks.png)
@@ -83,6 +84,7 @@ I hope that you find my journey helpful or entertaining.
 - Bundling a ReactJS child app
 - Bundling a VueJS child app
 - Bundling a VanillaJS child app
+- SKNK developer workflow example
 - RenderLoop: Tuning performance by idling/stopping/change frequency
 
 ## Understanding apps lifecycle
