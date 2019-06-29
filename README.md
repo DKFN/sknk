@@ -1,5 +1,4 @@
-# SKNK
-
+# ![](http://cdn.infra.tetel.in/sknk/sknk.png)
 Sknk is a library that aims to ease the adoption of the Micro Frontend pattern in new and exiting Browser applications
 
 Sknk is far from stable as of now and if you search a prod ready alternative you should look at Taylor
@@ -11,15 +10,20 @@ All child applications can receive properties from the mother application.
 There can be many instances of a child application.
  
 Here is how it looks in general:
+![](http://cdn.infra.tetel.in/sknk/sknk-diagramgeneral.png)
+If we look at our example, 
  
- SCHEMA
- 
- If we look at our example, 
- PICTURE OF DEMO WITH SCOPES
- 
+![](http://cdn.infra.tetel.in/sknk/skunkjschunks.png)
+
+There is two sub apps in the screen:
+
+- The red one is the Search App
+- The green one is the list of movie app
+
+And a third app, the detail view that is not running yet
+
 And apply the schema
- 
- PICTURE OF DEMO LIKE SCHEMA
+![](http://cdn.infra.tetel.in/sknk/sknk-diagram.png)
 
 From now on, if you want to get hands on SKNK follow this link and start your first app in 10mns
 learning the concepts along the way, or continue reading if you want to get more details
