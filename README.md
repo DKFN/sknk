@@ -1,4 +1,4 @@
-# ![](http://cdn.infra.tetel.in/sknk/sknk.png) ([Demo](https://sknk-demo-uld3cp3nxa-uc.a.run.app/))
+# ![](http://cdn.infra.tetel.in/sknk/sknk.png) ([Demo](https://sknk-demo-uld3cp3nxa-uc.a.run.app/)) -Doc in progress-
 Sknk is a library that aims to ease the adoption of the Micro Frontend pattern in new and existing Browser applications
 
 Sknk is far from stable as of now and if you search a prod ready alternative you should look at Taylor
