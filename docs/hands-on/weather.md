@@ -55,7 +55,7 @@ Nice let's get into a bit of coding, first the html:
 
 Now lets use our packager to build the app:
 
-```superweather/motherapp/src/package.json```
+`superweather/motherapp/src/package.json`
 ```json
 HERE PACKAGE JSON
 ```
@@ -63,7 +63,7 @@ HERE PACKAGE JSON
 We want to wire a bit of logic, each time the user is clicking Submit we want to run the detail app, of course
 it does not exist yet ! So for now we will just display the value on the console
 
-```superweather/motherapp/src/index.js```
+`superweather/motherapp/src/index.js`
 ```js
 let input = document.getElementById("city");
 let button = document.getElementById("submit");
@@ -82,7 +82,8 @@ button.onclick = handleClickSubmit;
 This one will be a bit more complex because it takes the city name in parameter thens call
 www.prevision-meteo.ch free meteo API to get current weather
 
-Go back to your route fol
+Go back to your root folder and create the base for the child app
+`superweather/childapp/src/index.js`
 
 [Implement child app indexjs]
 
@@ -93,6 +94,10 @@ First import the client
 var sknk = require("sknk-client");
 
 ```
+---
+**NOTE**
 
-NOTE : You will notice that the app will not render itself anymore, this is because your app now needs a sknk
+ You will notice that the app will not render itself anymore, this is because your app now needs a sknk
 server to run, here is [How to setup a sknk developement server]
+---
+ ##Step3: Run the child application in the mother app
