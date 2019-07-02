@@ -46,10 +46,10 @@ export class SknkServer {
     }
 
     // Public interface of the API (outside of main app accessible functions)
-    public publicInterface = {
+    public publicInterface = Object.freeze({
         registerApp: SknkServer.registerApp,
         getBaseProps: this.getBaseProps
-    };
+    });
 
     public setConfiguration(options: SkunkOptions) {
         if (options.pedingAppsWaiterAutoStart === false)
