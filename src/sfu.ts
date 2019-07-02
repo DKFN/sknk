@@ -8,9 +8,9 @@ export const assign = (source: any, ...targets: any[]) =>
 
 export const clone = (e: any) => Object.assign({}, e);
 
-const handler = (query) => (e) => !!Object.keys(query).find(
+const handler = (query) => (e) => !!Object.keys(query).map(
     (k) => e[k] && e[k] === query[k]
-);
+).reduce((v, acc) => v && acc);
 
 export function find<T>(col: T[], query: object): T | undefined {
     return col.find(handler(query));
