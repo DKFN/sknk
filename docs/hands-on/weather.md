@@ -1,4 +1,4 @@
-# Your first SKNK app
+# Your first SKNK app (In progress)
 
 ## Introduction
 The goal is to build two very simple Javascript applications that will interact with eachorther 
@@ -84,8 +84,34 @@ www.prevision-meteo.ch free meteo API to get current weather
 
 Go back to your root folder and create the base for the child app
 `superweather/childapp/src/index.js`
+```js
+const weatherTemplate = (weatherResult) => `
+    <div class="weather-result">
+        <img src="${weatherResult.icon}" />
+    </div>
+`;
 
+const renderWeather = () => {
+    const root = document.getElementById("root");
+    const fetchWeather = (cityName) => {
+        fetch("https://www.prevision-meteo.ch/services/json/" + cityName)
+            .then((res) => {
+                res.json().then((data) => {
+                    root.innerHTML = weatherTemplate(data)
+                })
+            .catch(() => {
+                root.innerText = "Fetch error";
+            });
+        });
+    };
+    
+};
+
+renderWeather();
+```
 [Implement child app indexjs]
+
+# Step 3: Linking applications
 
 Now that our app is working independently, lets use the client
 
