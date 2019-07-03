@@ -360,7 +360,7 @@ Finally, the last step is to tell where the app(s) can render, this is done by p
 
 If we edit our index.html from our mother app and add
 ```html
-<div class="skunk-space" skunk-id="strates"></div>
+<div class="skunk-space" skunk-id="childapps-container"></div>
 ```
 
 Giving:
