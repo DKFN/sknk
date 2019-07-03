@@ -76,7 +76,7 @@ I hope that you find my journey helpful or entertaining.
 
 # SKNK in details
 ## Your first app
-- Here is a minimal setup to implement a meteo website with a SKNK widget to show current time
+- [Minimal setup to implement a meteo website with a SKNK widget to show current weather of a city](https://dkfn.github.io/sknk/hands-on/weather)
 - How to recreate the demo (React mother App, VanillaJS, React and VueJS childs)
 
 ## Usefull tutorials
