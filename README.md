@@ -26,7 +26,7 @@ And a third app, the detail view that is not running yet
 And apply the schema
 ![](http://cdn.infra.tetel.in/sknk/sknk-diagram.png)
 
-From now on, if you want to get hands on SKNK follow this link and start your first app in 10mns
+From now on, if you want to get hands on SKNK follow this [link](https://dkfn.github.io/sknk/hands-on/weather) and start your first app in 10mns
 learning the concepts along the way, or continue reading if you want to get more details
 
 ## Example use case
