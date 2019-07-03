@@ -1,4 +1,4 @@
-# Your first SKNK app (In progress)
+# Your first SKNK app
 
 ## Introduction
 The goal is to build two very simple Javascript applications that will interact with eachorther 
