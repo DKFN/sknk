@@ -1,7 +1,7 @@
 # ![](http://cdn.infra.tetel.in/sknk/sknk.png) ([Demo](https://sknk-demo-uld3cp3nxa-uc.a.run.app/)) -Doc in progress-
 Sknk is a library that aims to ease the adoption of the [Micro Frontend](https://micro-frontends.org/) pattern in new and existing Browser applications
 
-Sknk is far from stable as of now and if you search a prod ready alternative you should look at Taylor
+Sknk is far from stable as of now and if you search a prod ready alternative you should look at [Tailor](https://github.com/zalando/tailor)
 
 
 # What is the typical structure of an SKNK app
