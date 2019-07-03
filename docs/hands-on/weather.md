@@ -193,7 +193,7 @@ and run `npm run dev`
 
 Now that our child and mother app is working independently, lets wire our small applications together.
 
-Lets start by adding a buildAndServe command to the package.json of the child app, that will package our main app js and lanch
+Lets start by adding a buildAndServe command to the package.json of the child app, that will package our child app js and lanch
 a static serve to expose the bundled js locally
 
 `superweather/childapp/package.json`
@@ -389,4 +389,4 @@ And Thats it :)
 
 If you run the motherapp with `npm run dev` you will have the second app running when you click submit
 
-![](https://tetelincdn.b-cdn.net/sknk/images/weather-result.png)
+![](https://tetelincdn.b-cdn.net/sknk/images/weather-affli.png)
